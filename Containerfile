@@ -11,7 +11,10 @@ COPY entrypoint.sh /
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["msmtpd"]
 
-ENV DMA_NULLCLIENT=true
+ENV \
+	DMA_NULLCLIENT=true \
+	DMA_SECURETRANSFER=true \
+	DMA_STARTTLS=true
 
 VOLUME /var/spool/dma
 EXPOSE 25

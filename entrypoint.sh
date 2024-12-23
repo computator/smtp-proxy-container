@@ -23,11 +23,27 @@ verify_dma_conf () {
 	} >&2 || true
 }
 
-write_dma_conf
+write_dma_auth () {
+	grep -Evq '^\s*(#|$)' /etc/dma/auth.conf && return
 
+	if [ -n "${AUTH_CONTENTS:+1}" ]; then
+		printenv AUTH_CONTENTS > /etc/dma/auth.conf
+	elif [ -n "${AUTH_PASS:+1}" ]; then
+		echo "${AUTH_USER:?}|${AUTH_HOST:-$DMA_SMARTHOST}:${AUTH_PASS}" > /etc/dma/auth.conf
+	else
+		return 0
+	fi
+}
+
+: ${DMA_SMARTHOST=${SMARTHOST:-}}
+export DMA_SMARTHOST
+
+write_dma_conf
 case "$1" in
 	dma|mailq|msmtpd|newaliases|sendmail) verify_dma_conf ;;
 esac
+
+write_dma_auth
 
 if [ "$1" = "msmtpd" ] || [ "${1#-}" != "$1" ]; then
 	[ "${1#-}" != "$1" ] || shift
