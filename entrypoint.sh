@@ -1,7 +1,9 @@
 #!/bin/sh
 set -eu
 
-if [ ! -f /etc/dma/dma.conf ]; then
+write_dma_conf () {
+	[ -f /etc/dma/dma.conf ] && return
+
 	{
 		echo "# config automatically generated from DMA_* env vars"
 		echo
@@ -9,15 +11,23 @@ if [ ! -f /etc/dma/dma.conf ]; then
 			| grep ^DMA_ \
 			| sed -E 's/^DMA_//; /^[^=]*=(false)?$/d; s/^([^=]*)=true$/\1/; s/^([^=]*)=/\1 /'
 	} > /etc/dma/dma.conf
-	# verify config
+}
+
+verify_dma_conf () {
 	dma 2>&1 | grep -v 'no recipients$' >&2 && {
 		echo
 		echo "Generated config:"
 		echo
 		nl -b a -s ': ' -w 2 /etc/dma/dma.conf
 		exit 1
-	} >&2
-fi
+	} >&2 || true
+}
+
+write_dma_conf
+
+case "$1" in
+	dma|mailq|msmtpd|newaliases|sendmail) verify_dma_conf ;;
+esac
 
 if [ "$1" = "msmtpd" ]; then
 	shift
