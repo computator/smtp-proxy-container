@@ -36,7 +36,14 @@ if [ "$1" = "msmtpd" ]; then
 		--log /dev/stdout \
 		--command 'dma -f %F --' \
 		"$@"
-	# TODO: handle flushing the queue every 15 mins?
+
+	# start syslogd to handle dma logging
+	test -s /dev/log || ( syslogd -nSO - & )
+
+	# flush the queue every 15 mins
+	( sh -c 'while sleep 15m; do dma -q1; done' & )
+
+	echo "Starting msmtpd..."
 fi
 
 exec "$@"
