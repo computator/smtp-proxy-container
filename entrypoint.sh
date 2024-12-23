@@ -29,8 +29,8 @@ case "$1" in
 	dma|mailq|msmtpd|newaliases|sendmail) verify_dma_conf ;;
 esac
 
-if [ "$1" = "msmtpd" ]; then
-	shift
+if [ "$1" = "msmtpd" ] || [ "${1#-}" != "$1" ]; then
+	[ "${1#-}" != "$1" ] || shift
 	set -- tini -- msmtpd \
 		--interface 0.0.0.0 \
 		--log /dev/stdout \
