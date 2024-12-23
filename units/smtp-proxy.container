@@ -1,0 +1,21 @@
+[Unit]
+Description=SMTP Proxy
+
+[Container]
+Image=ghcr.io/computator/smtp-proxy
+AutoUpdate=registry
+ContainerName=smtp-proxy
+
+PublishPort=127.0.0.1:25:25
+
+Environment=SMARTHOST=smtp.example.com
+Environment=SMARTHOST_PORT=587
+Environment=AUTH_USER=smartuser
+Environment=AUTH_PASS_FILE=/run/secrets/smtp-proxy-pass
+
+Secret=smtp-proxy-pass
+
+Volume=smtp-proxy-queue:/var/spool/dma
+
+[Install]
+WantedBy=multi-user.target

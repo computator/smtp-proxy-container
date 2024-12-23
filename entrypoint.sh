@@ -46,8 +46,10 @@ write_dma_auth () {
 	fi
 }
 
-: ${DMA_SMARTHOST=${SMARTHOST:-}}
-export DMA_SMARTHOST
+: \
+	${DMA_SMARTHOST=${SMARTHOST-}} \
+	${DMA_PORT=${SMARTHOST_PORT-}}
+export DMA_SMARTHOST DMA_PORT
 
 write_dma_conf
 case "$1" in
