@@ -28,8 +28,19 @@ write_dma_auth () {
 
 	if [ -n "${AUTH_CONTENTS:+1}" ]; then
 		printenv AUTH_CONTENTS > /etc/dma/auth.conf
-	elif [ -n "${AUTH_PASS:+1}" ]; then
-		echo "${AUTH_USER:?}|${AUTH_HOST:-$DMA_SMARTHOST}:${AUTH_PASS}" > /etc/dma/auth.conf
+	elif [ -n "${AUTH_PASS:+1}${AUTH_PASS_FILE:+1}" ]; then
+		{
+			printf '%s|%s:' "${AUTH_USER:?}" "${AUTH_HOST:-$DMA_SMARTHOST}"
+			if [ -n "${AUTH_PASS_FILE-}" ]; then
+				{
+					cat "$AUTH_PASS_FILE"
+					# make sure there's a newline
+					echo
+				} | head -n 1
+			else
+				printenv AUTH_PASS
+			fi
+		} > /etc/dma/auth.conf
 	else
 		return 0
 	fi
