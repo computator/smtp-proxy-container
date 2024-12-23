@@ -43,7 +43,7 @@ jobs:
         if: steps.restore-cache.outputs.cache-matched-key != ''
         continue-on-error: true
         run: |
-          [ -n "$(podman run --pull never --rm -i ${{ env.IMAGE }} sh -c 'apk -q update && apk -q list -u samba-server')" ] || exit 0
+          [ -n "$(podman run --pull never --rm -i ${{ env.IMAGE }} sh -c 'apk -q update && apk -q list -u dma msmtp s-nail')" ] || exit 0
           podman image rm ${{ env.IMAGE }}
           podman image prune -f
 
