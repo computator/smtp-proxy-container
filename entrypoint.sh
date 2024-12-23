@@ -48,8 +48,9 @@ write_dma_auth () {
 
 : \
 	${DMA_SMARTHOST=${SMARTHOST-}} \
-	${DMA_PORT=${SMARTHOST_PORT-}}
-export DMA_SMARTHOST DMA_PORT
+	${DMA_PORT=${SMARTHOST_PORT-}} \
+	${DMA_AUTHPATH="/etc/dma/auth.conf"}
+export DMA_SMARTHOST DMA_PORT DMA_AUTHPATH
 
 write_dma_conf
 case "$1" in
