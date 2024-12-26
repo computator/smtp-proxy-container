@@ -6,7 +6,8 @@ RUN set -eux; \
 	apk add --no-cache dma msmtp s-nail tini; \
 	mv /etc/dma/dma.conf /etc/dma/dma.conf.default
 
-COPY entrypoint.sh sendmail-in-ctr.sh /
+COPY entrypoint.sh /
+COPY utils/ /utils/
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["msmtpd"]

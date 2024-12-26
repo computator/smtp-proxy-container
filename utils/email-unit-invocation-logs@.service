@@ -1,0 +1,21 @@
+[Unit]
+Description=invocation log emailer for %i
+
+[Service]
+Environment=EMAIL_TGTS=user@example.com
+Environment=EMAIL_SUBJ='Service %i on host %H entered state: $STATE'
+Environment=EMAIL_TPL='Logs for service %i:\n$LOGS'
+# Environment=SD_ARGS=--user
+
+SyslogIdentifier=logmailer
+SyslogLevel=err
+Type=oneshot
+ExecStart=/bin/sh -euc '\
+	inv=$(systemctl ${SD_ARGS} show -P InvocationID %i | grep ^.) \n\
+	STATE=$(systemctl ${SD_ARGS} is-active %i || true) \n\
+	LOGS=$(journalctl ${SD_ARGS} --all --no-hostname \
+		INVOCATION_ID=$$inv \
+		+ USER_INVOCATION_ID=$$inv \
+		+ _SYSTEMD_INVOCATION_ID=$$inv) \n\
+	sendmail -i "$1" <<_TPL_EOF\nSubject: ${EMAIL_SUBJ}\n\n${EMAIL_TPL}\n_TPL_EOF\n\
+	' -- $EMAIL_TGTS
