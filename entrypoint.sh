@@ -52,6 +52,9 @@ write_dma_auth () {
 	${DMA_AUTHPATH="/etc/dma/auth.conf"}
 export DMA_SMARTHOST DMA_PORT DMA_AUTHPATH
 
+# set default command
+[ "${1#-}" = "$1" ] || set -- msmtpd "$@"
+
 write_dma_conf
 case "$1" in
 	dma|mailq|msmtpd|newaliases|sendmail) verify_dma_conf ;;
@@ -59,8 +62,8 @@ esac
 
 write_dma_auth
 
-if [ "$1" = "msmtpd" ] || [ "${1#-}" != "$1" ]; then
-	[ "${1#-}" != "$1" ] || shift
+if [ "$1" = "msmtpd" ]; then
+	shift
 	set -- tini -- msmtpd \
 		--interface 0.0.0.0 \
 		--log /dev/stdout \
