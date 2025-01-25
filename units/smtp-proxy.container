@@ -16,6 +16,7 @@ Environment=AUTH_PASS_FILE=/run/secrets/smtp-proxy-pass
 Secret=smtp-proxy-pass
 
 Volume=smtp-proxy-queue:/var/spool/dma
+Volume=/usr/local/smtp-proxy-utils:/utils-export
 
 [Install]
 WantedBy=multi-user.target

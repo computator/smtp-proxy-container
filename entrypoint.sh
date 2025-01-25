@@ -46,6 +46,12 @@ write_dma_auth () {
 	fi
 }
 
+setup_utils () {
+	test -d /utils-export || return 0
+	echo "Setting up /utils-export/"
+	cp -Rpv /utils/* /utils-export/
+}
+
 : \
 	${DMA_SMARTHOST=${SMARTHOST-}} \
 	${DMA_PORT=${SMARTHOST_PORT-}} \
@@ -54,6 +60,8 @@ export DMA_SMARTHOST DMA_PORT DMA_AUTHPATH
 
 # set default command
 [ "${1#-}" = "$1" ] || set -- msmtpd "$@"
+
+[ "$1" = "msmtpd" ] && setup_utils
 
 write_dma_conf
 case "$1" in
