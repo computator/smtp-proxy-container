@@ -58,8 +58,13 @@ setup_utils () {
 	${DMA_AUTHPATH="/etc/dma/auth.conf"}
 export DMA_SMARTHOST DMA_PORT DMA_AUTHPATH
 
-# set default command
+# set default command if flags passed
 [ "${1#-}" = "$1" ] || set -- msmtpd "$@"
+
+SLEEP_ONLY=
+if [ -n "${NO_NETWORK-}" ] && [ $# -eq 1 ] && [ "$1" = "msmtpd" ]; then
+	SLEEP_ONLY=1
+fi
 
 [ "$1" = "msmtpd" ] && setup_utils
 
@@ -72,11 +77,15 @@ write_dma_auth
 
 if [ "$1" = "msmtpd" ]; then
 	shift
-	set -- tini -- msmtpd \
-		--interface 0.0.0.0 \
-		--log /dev/stdout \
-		--command 'dma -f %F --' \
-		"$@"
+	if [ -z "$SLEEP_ONLY" ]; then
+		set -- tini -- msmtpd \
+			--interface 0.0.0.0 \
+			--log /dev/stdout \
+			--command 'dma -f %F --' \
+			"$@"
+	else
+		set -- tini -- sleep inf
+	fi
 
 	# start syslogd to handle dma logging
 	test -s /dev/log || ( syslogd -nSO - & )
@@ -84,7 +93,11 @@ if [ "$1" = "msmtpd" ]; then
 	# flush the queue every 15 mins
 	( sh -c 'while sleep 15m; do dma -q1; done' & )
 
-	echo "Starting msmtpd..."
+	if [ -z "$SLEEP_ONLY" ]; then
+		echo "Starting msmtpd..."
+	else
+		echo "Waiting for signal..."
+	fi
 fi
 
 exec "$@"
