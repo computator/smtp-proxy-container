@@ -7,6 +7,7 @@ AutoUpdate=registry
 ContainerName=smtp-proxy
 
 PublishPort=127.0.0.1:25:25
+# Environment=NO_NETWORK=true
 
 Environment=SMARTHOST=smtp.example.com
 Environment=SMARTHOST_PORT=587
