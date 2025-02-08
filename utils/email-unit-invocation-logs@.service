@@ -1,5 +1,8 @@
 [Unit]
 Description=invocation log emailer for %i
+# Usage examples:
+# OnSuccess=email-unit-invocation-logs@%n.service
+# OnFailure=email-unit-invocation-logs@%n.service
 
 [Service]
 Environment=EMAIL_TGTS=user@example.com
