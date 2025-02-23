@@ -14,11 +14,17 @@ SyslogIdentifier=logmailer
 SyslogLevel=err
 Type=oneshot
 ExecStart=/bin/sh -euc '\
-	inv=$(systemctl ${SD_ARGS} show -P InvocationID %i | grep ^.) \n\
+	sd_ver=$(systemctl --version | awk \'NR == 1 { print $2 }\') \n\
+	filt= \n\
+	if [ "$$sd_ver" -ge 257 ]; then \n\
+		filt=$$filt" --unit %i --invocation=0" \n\
+	else \n\
+		inv=$(systemctl ${SD_ARGS} show -P InvocationID %i | grep ^.) \n\
+		filt=$$filt" INVOCATION_ID=$$inv + USER_INVOCATION_ID=$$inv + _SYSTEMD_INVOCATION_ID=$$inv" \n\
+	fi \n\
+	[ "$$sd_ver" -ge 256 ] && echo %i | grep -Evq \'^podman([.@]|$)\' && \n\
+		filt=$$filt" --exclude-identifier=podman" \n\
 	STATE=$(systemctl ${SD_ARGS} is-active %i || true) \n\
-	LOGS=$(journalctl ${SD_ARGS} --all --no-hostname \
-		INVOCATION_ID=$$inv \
-		+ USER_INVOCATION_ID=$$inv \
-		+ _SYSTEMD_INVOCATION_ID=$$inv) \n\
+	LOGS=$(journalctl ${SD_ARGS} --all --no-hostname $$filt) \n\
 	sendmail -i "$1" <<_TPL_EOF\nSubject: ${EMAIL_SUBJ}\n\n${EMAIL_TPL}\n_TPL_EOF\n\
 	' -- $EMAIL_TGTS
