@@ -12,7 +12,9 @@ arg_quot () {
 	printf '%s' "$@" | sed "s/'/'\\\\''/g; s/.*/'&'/"
 }
 
-if [ "$(getopt -T > /dev/null; echo $?)" -eq 4 ]; then
+if [ $# -eq 0 ] && [ -t 0 ]; then
+	: # interactive mode
+elif [ "$(getopt -T > /dev/null; echo $?)" -eq 4 ]; then
 	# sed is to strip the extra -- param
 	orig_opts=$(getopt -- '' -- "$@" | sed 's/^ *-- *//')
 	# convert -. and --end-options to --
@@ -80,4 +82,4 @@ else
 	echo "WARNING: $SELF_NAME: falling back to insecure parameter passing because this getopt is unsupported" >&2
 fi
 
-exec ${CTR_EXEC_CMD:-podman exec} -i "$CTR_NAME" mail "$@"
+exec ${CTR_EXEC_CMD:-podman exec} -i $([ -t 0 ] && echo -t) "$CTR_NAME" mail "$@"
