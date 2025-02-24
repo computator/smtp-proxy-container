@@ -53,10 +53,11 @@ setup_utils () {
 }
 
 : \
+	${DMA_MAILNAME=${MAILNAME-}} \
 	${DMA_SMARTHOST=${SMARTHOST-}} \
 	${DMA_PORT=${SMARTHOST_PORT-}} \
 	${DMA_AUTHPATH="/etc/dma/auth.conf"}
-export DMA_SMARTHOST DMA_PORT DMA_AUTHPATH
+export DMA_MAILNAME DMA_SMARTHOST DMA_PORT DMA_AUTHPATH
 
 # set default command if flags passed
 [ "${1#-}" = "$1" ] || set -- msmtpd "$@"
